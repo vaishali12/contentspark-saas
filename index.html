@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PropBlitz-AI Core v2</title>
+    <!-- Tailwind CSS for modern responsive layout styling -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Clerk Authentication SDK Browser Script -->
+    <script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_bW9kZXJuLW11bGV0LTY4LmNsZXJrLmFjY291bnRzLmRldiQ" src="https://modern-mulet-68.clerk.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js" type="text/javascript"></script>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800 font-sans">
+
+    <!-- Application Top Navbar Container -->
+    <div id="app-container" style="display: block;" class="max-width-1200px mx-auto px-4 py-6">
+        <header class="flex justify-between items-center mb-8 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl">⚡</span>
+                <h1 class="text-xl font-bold tracking-tight text-blue-600">PropBlitz-AI Real Estate Dashboard</h1>
+            </div>
+            <!-- Dynamic User Button Handoff Anchor -->
+            <div id="user-button"></div>
+        </header>
+
+        <main class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Left Panel: Structured Input Profile Dashboard Form -->
+            <section class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 space-y-6">
+                <div>
+                    <!-- This greeting will update dynamically using Clerk session data -->
+                    <h2 id="welcome-greeting" class="text-lg text-gray-600 mb-2">Welcome, Agent!</h2>
+                    <p class="text-sm text-gray-500">Fill out your structured property details below to instantly blast multi-channel marketing campaigns.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Field 1: Property Type Selection -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Property Type</label>
+                        <select id="propType" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Luxury Villa">Luxury Villa</option>
+                            <option value="Apartment / Flat">Apartment / Flat</option>
+                            <option value="Penthouse">Penthouse</option>
+                            <option value="Commercial Office Space">Commercial Space</option>
+                            <option value="Gated Plot">Gated Plot</option>
+                        </select>
+                    </div>
+
+                    <!-- Fields 2 & 3: Localized Location Matrix -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">City</label>
+                            <input type="text" id="city" placeholder="e.g., Bengaluru" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Locality / Area</label>
+                            <input type="text" id="locality" placeholder="e.g., Indiranagar" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <!-- Field 4: Target Investment Pricing -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Price / Investment Range</label>
+                        <input type="text" id="price" placeholder="e.g., ₹2.5 Crores / $350,000" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <!-- Field 5: Key Amenities Descriptions -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Key Selling Features & Amenities</label>
+                        <textarea id="features" rows="3" placeholder="e.g., Private plunge pool, ultra-modern modular kitchen, east-facing vaastu compliant, 5 mins from metro station" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+
+                    <!-- Field 6: Marketing Persona/Tone Selection Dropdown -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Marketing Tone / Persona</label>
+                        <select id="tone" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Premium / High-End Luxury">Premium / High-End Luxury</option>
+                            <option value="Urgent Deal / High ROI Scarcity">Urgent Deal / High ROI Scarcity</option>
+                            <option value="Family-Centric Emotional Storytelling">Family-Centric Emotional Storytelling</option>
+                        </select>
+                    </div>
+
+                    <!-- The Core Execution Action Button -->
+                    <button id="generateBtn" onclick="triggerCampaignGeneration()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-colors flex items-center justify-center space-x-2">
+                        <span>✨ Generate Blitz Campaign</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Right Panel: Multi-Channel Output Layout Interface -->
+            <section class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden flex flex-col min-h-[500px]">
+                <!-- Navigation Tabs Panel -->
+                <div class="flex border-b border-gray-100 bg-gray-50">
+                    <button onclick="switchTab('listingTab', this)" class="tab-btn flex-1 py-4 px-2 text-center font-semibold border-b-2 border-blue-600 text-blue-600 bg-white focus:outline-none">📋 Listing Ad</button>
+                    <button onclick="switchTab('videoTab', this)" class="tab-btn flex-1 py-4 px-2 text-center font-semibold text-gray-500 hover:text-gray-700 focus:outline-none">🎬 Video Script</button>
+                    <button onclick="switchTab('whatsappTab', this)" class="tab-btn flex-1 py-4 px-2 text-center font-semibold text-gray-500 hover:text-gray-700 focus:outline-none">💬 WhatsApp Blast</button>
+                </div>
+
+                <!-- Live Dynamic Output Copy Framework Screens -->
+                <div class="p-6 flex-1 bg-white overflow-y-auto">
+                    <div id="listingTab" class="output-content whitespace-pre-wrap text-gray-700">Your generated AI marketing copy will appear here instantly...</div>
+                    <div id="videoTab" class="output-content whitespace-pre-wrap text-gray-700 hidden">Select or generate content to see your Instagram/TikTok script...</div>
+                    <div id="whatsappTab" class="output-content whitespace-pre-wrap text-gray-700 hidden">Broadcast-ready WhatsApp group content layout frames load here...</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- UI/UX Event Handlers & Security Management Integration Scripts -->
+    <script>
+        // Core Tab-Switching Control System Interface Logic
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.output-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-b-2', 'border-blue-600', 'text-blue-600', 'bg-white');
+                btn.classList.add('text-gray-500');
+            });
+            
+            element.classList.add('border-b-2', 'border-blue-600', 'text-blue-600', 'bg-white');
+            element.classList.remove('text-gray-500');
+        }
+
+        // Secure Async API Event Communication Route Handler Execution Engine
+        async function triggerCampaignGeneration() {
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<span>⚡ Brewing Campaign Copy...</span>`;
+
+            // Collect structured field parameters cleanly
+            const payloadData = {
+                prop_type: document.getElementById('propType').value,
+                city: document.getElementById('city').value || "Local City",
+                locality: document.getElementById('locality').value || "Prime Locality",
+                price: document.getElementById('price').value || "Price On Request",
+                features: document.getElementById('features').value,
+                tone: document.getElementById('tone').value
+            };
+
+            if (!payloadData.features) {
+                alert("Please add at least a few unique property features before blasting production workflows.");
+                btn.disabled = false;
+                btn.innerHTML = `<span>✨ Generate Blitz Campaign</span>`;
+                return;
+            }
+
+            try {
+                let sessionToken = "";
+                if (window.Clerk && window.Clerk.session) {
+                    sessionToken = await window.Clerk.session.getToken();
+                } else if (window.Clerk && window.Clerk.client && window.Clerk.client.session) {
+                    sessionToken = await window.Clerk.client.session.getToken();
+                } else {
+                    // Local fallback for testing if session handles are running in decoupled headers
+                    sessionToken = "local_sandbox_bypass_token";
+                }
+                // Fetch request pointing to our local backend layer (change this to Render URL later!)
+                const response = await fetch('http://localhost:8000/api/generate-campaign', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionToken}`
+                    },
+                    body: JSON.stringify(payloadData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('listingTab').innerText = result.listing;
+                    document.getElementById('videoTab').innerText = result.video;
+                    document.getElementById('whatsappTab').innerText = result.whatsapp;
+                } else {
+                    alert(`⚠️ Backend error returned: ${result.detail || 'Unknown core error structure.'}`);
+                }
+            } catch (err) {
+                alert(`🛑 Connection connection pipeline failure: ${err.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<span>✨ Generate Blitz Campaign</span>`;
+            }
+        }
+
+        // Main Session Control Startup Window Handoff Hook
+        window.addEventListener('load', async function () {
+            await Clerk.load();
+
+            if (Clerk.user) {
+                document.getElementById('app-container').style.display = 'block';
+                
+                // 🚀 UPGRADE 1: Capture User's real name via Clerk
+                const firstName = Clerk.user.firstName || "Agent";
+                document.getElementById('welcome-greeting').innerHTML = `Welcome, <span class="font-bold text-blue-600">${firstName}</span>! 👋`;
+                
+                const userButtonDiv = document.getElementById('user-button');
+                if (userButtonDiv) {
+                    Clerk.mountUserButton(userButtonDiv);
+                }
+            } else {
+                Clerk.openSignIn();
+            }
+        });
+    </script>
+</body>
+</html>
