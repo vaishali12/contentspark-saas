@@ -3,3 +3,4 @@ uvicorn
 groq
 requests
 python-dotenv
+PyJWT
