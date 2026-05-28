@@ -1,5 +1,4 @@
-flask
-groq
-gunicorn
 fastapi
 uvicorn
+groq
+requests
