@@ -164,15 +164,22 @@
     })
 });
 
-                const result = await response.json();
+// ... (this is inside your submit button click function, right after your fetch call)
 
-                if (response.ok) {
-                    document.getElementById('listingTab').innerText = result.listing;
-                    document.getElementById('videoTab').innerText = result.video;
-                    document.getElementById('whatsappTab').innerText = result.whatsapp;
-                } else {
-                    alert(`⚠️ Backend error returned: ${result.detail || 'Unknown core error structure.'}`);
-                }
+            const result = await response.json();
+
+            if (response.ok) {
+                document.getElementById('listingTab').innerText = result.listing;
+                document.getElementById('videoTab').innerText = result.video;
+                document.getElementById('whatsappTab').innerText = result.whatsapp;
+            } else {
+                // 🌟 PASTE THE SAFE FALLBACK RIGHT HERE 🌟
+                const errorPayload = result && result.detail ? result.detail : result;
+                const errorDetails = JSON.stringify(errorPayload, null, 2);
+                alert(`⚠️ Backend validation error:\n${errorDetails}`);
+            }
+
+// ... (the rest of your try/catch/finally blocks continue right below here)
             } catch (err) {
                 alert(`🛑 Connection connection pipeline failure: ${err.message}`);
             } finally {
