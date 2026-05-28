@@ -1,3 +1,5 @@
 flask
 groq
 gunicorn
+fastapi
+uvicorn
