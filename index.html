@@ -160,8 +160,9 @@
         "Content-Type": "application/json",
     },
     body: JSON.stringify({
-        // ... your campaign form data goes here
-    })
+    prop_type: document.getElementById('propTypeInput').value, // 🌟 Make sure the key is 'prop_type'
+    // your other fields...
+})
 });
 
 // ... (this is inside your submit button click function, right after your fetch call)
