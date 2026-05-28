@@ -186,3 +186,11 @@ def get_agent_campaigns(authorization: str = Header(None)):
         })
         
     return {"campaigns": campaign_list}
+
+    import os
+
+if __name__ == "__main__":
+    import uvicorn
+    # This reads Render's dynamic port, defaulting to 8000 if running locally
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("server:app", host="0.0.0.0", port=port)
