@@ -144,7 +144,7 @@
             }
 
             try {
-                let sessionToken = "";
+                 let sessionToken = "";
                 if (window.Clerk && window.Clerk.session) {
                     sessionToken = await window.Clerk.session.getToken();
                 } else if (window.Clerk && window.Clerk.client && window.Clerk.client.session) {
@@ -154,7 +154,7 @@
                     sessionToken = "local_sandbox_bypass_token";
                 }
                 // Fetch request pointing to our local backend layer (change this to Render URL later!)
-                const response = await fetch('http://localhost:8000/api/generate-campaign', {
+                const response = await fetch('fetch("https://contentspark-saas.onrender.com/api/generate", { ... })', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
