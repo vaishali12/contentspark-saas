@@ -8,6 +8,17 @@ import sqlite3
 
 app = FastAPI()
 
+from fastapi.middleware.cors import CORSMiddleware
+
+# Paste this right below app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # This allows your Vercel frontend to talk to your API
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all actions (GET, POST, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
