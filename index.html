@@ -154,14 +154,15 @@
                     sessionToken = "local_sandbox_bypass_token";
                 }
                 // Fetch request pointing to our local backend layer (change this to Render URL later!)
-                const response = await fetch('fetch("https://contentspark-saas.onrender.com/api/generate", { ... })', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${sessionToken}`
-                    },
-                    body: JSON.stringify(payloadData)
-                });
+                const response = await fetch("https://contentspark-saas.onrender.com/api/generate-campaign", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+        // ... your campaign form data goes here
+    })
+});
 
                 const result = await response.json();
 
