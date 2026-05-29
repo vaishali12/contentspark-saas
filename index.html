@@ -35,13 +35,13 @@
             <!-- Left Panel -->
             <div class="lg:col-span-5 space-y-6">
                 <section class="bg-white p-5 md:p-6 rounded-2xl shadow-md border border-gray-100 space-y-5 relative">
-                    <!-- Authentication/Wake-up Overlay for specific panel control -->
-                    <div id="auth-lock-overlay" class="absolute inset-0 bg-white bg-opacity-95 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-4 text-center rounded-2xl">
-                        <span class="text-4xl mb-3 animate-bounce">⚡</span>
-                        <h3 class="text-base font-bold text-gray-800 tracking-tight">PropBlitz-AI Authentication</h3>
-                        <p class="text-xs text-gray-500 max-w-xs mt-1 leading-relaxed">Please sign in to securely activate your automated marketing campaign generation engine.</p>
-                        <button onclick="retryClerkLogin()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-5 rounded-xl shadow-md transition-colors">Sign In / Register</button>
-                    </div>
+                   <!-- Authentication/Wake-up Overlay with Guaranteed Solid White Background Layer -->
+                   <div id="auth-lock-overlay" class="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 text-center rounded-2xl" style="background-color: #ffffff !important;">
+                    <span class="text-4xl mb-3 animate-bounce">⚡</span>
+                    <h3 class="text-base font-bold text-gray-800 tracking-tight">PropBlitz-AI Authentication</h3>
+                    <p class="text-xs text-gray-500 max-w-xs mt-1 leading-relaxed">Please sign in to securely activate your automated marketing campaign generation engine.</p>
+                    <button onclick="retryClerkLogin()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-5 rounded-xl shadow-md transition-colors">Sign In / Register</button>
+                </div>
 
                     <div>
                         <h2 id="welcome-greeting" class="text-lg text-gray-600 mb-1">Welcome, Agent!</h2>
