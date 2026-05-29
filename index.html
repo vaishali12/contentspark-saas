@@ -345,27 +345,74 @@
             }
         }
 
-        window.addEventListener('load', async function () {
-            const splash = document.getElementById('app-loading-screen');
+        // BULLETPROOF EVENT LIFECYCLE: Reactive Polling Initialization Engine
+        window.addEventListener('load', function () {
             loadCampaignsFromLocalStorage();
             
-            try {
-                await Clerk.load();
-                if (splash) { splash.style.opacity = '0'; setTimeout(() => splash.remove(), 300); }
+            const splash = document.getElementById('app-loading-screen');
+            const overlay = document.getElementById('auth-lock-overlay');
+            const container = document.getElementById('app-container');
 
-                if (Clerk.user) {
-                    document.getElementById('auth-lock-overlay').remove(); // Instantly unlock form features
-                    const firstName = Clerk.user.firstName || "Agent";
-                    document.getElementById('welcome-greeting').innerHTML = `Welcome, <span class="font-bold text-blue-600">${firstName}</span>! 👋`;
-                    Clerk.mountUserButton(document.getElementById('user-button'));
-                } else {
-                    Clerk.openSignIn({ appearance: { variables: { colorPrimary: '#2563eb' } } });
+            function killLoadingIndicators() {
+                if (splash) {
+                    splash.style.opacity = '0';
+                    setTimeout(() => splash.remove(), 300);
                 }
-            } catch (error) {
-                console.error("Clerk system load exception handled.", error);
-                // Fallback bypass layout safety switch
-                if (splash) splash.remove();
             }
+
+            // Polling configuration parameters
+            let attempts = 0;
+            const maxAttempts = 50; // 50 attempts * 100ms = 5 seconds maximum wait threshold
+
+            const clerkInitTicker = setInterval(async () => {
+                attempts++;
+                
+                // Check if the asynchronous CDN script has attached to the global window space
+                if (window.Clerk && typeof Clerk.load === 'function') {
+                    clearInterval(clerkInitTicker); // Stop tracking loop immediately
+                    
+                    try {
+                        await Clerk.load();
+                        killLoadingIndicators();
+
+                        if (Clerk.user) {
+                            if (overlay) overlay.remove();
+                            const firstName = Clerk.user.firstName || "Agent";
+                            document.getElementById('welcome-greeting').innerHTML = `Welcome, <span class="font-bold text-blue-600">${firstName}</span>! 👋`;
+                            Clerk.mountUserButton(document.getElementById('user-button'));
+                        } else {
+                            // Mount sign-in structures cleanly matching PropBlitz-AI constraints
+                            Clerk.openSignIn({ 
+                                appearance: { 
+                                    variables: { 
+                                        colorPrimary: '#2563eb',
+                                        colorBackground: '#ffffff',
+                                        colorText: '#1f2937',
+                                        borderRadius: '0.75rem'
+                                    } 
+                                } 
+                            });
+                        }
+                    } catch (initError) {
+                        console.error("Clerk instance execution fault:", initError);
+                        killLoadingIndicators();
+                    }
+                    return;
+                }
+
+                // Fallback Fail-Safe: If network latency or blockages stop script after 5 seconds
+                if (attempts >= maxAttempts) {
+                    clearInterval(clerkInitTicker);
+                    console.warn("⌛ Clerk script initialization timed out. Launching sandbox fallback environment.");
+                    killLoadingIndicators();
+                    
+                    // Remap typography to inform agent about extension/network drops
+                    const textFallback = document.querySelector('#auth-lock-overlay p');
+                    if (textFallback) {
+                        textFallback.innerHTML = `<span class="text-amber-400 font-bold">⚠️ Connection Delayed:</span> Shield tracking protection or latency detected. Please click below to try a manual launch hook.`;
+                    }
+                }
+            }, 100); // Poll every 100 milliseconds for instant response times
         });
     </script>
 </body>
