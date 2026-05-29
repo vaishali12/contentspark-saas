@@ -8,7 +8,6 @@ from groq import Groq
 
 app = FastAPI(title="PropBlitz-AI Core Backend API")
 
-# Configure cross-origin framework capabilities for safe Vercel interaction
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,17 +16,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize the Groq processing pipeline wrapper using environment profiles
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
     raise RuntimeError("CRITICAL CRASH: GROQ_API_KEY environment variable is entirely missing.")
 
 client = Groq(api_key=GROQ_API_KEY)
-
-# Mock production database array holding user structural history sandbox logs
 MOCK_CAMPAIGN_DB = []
 
-# Strict incoming request validation frame
 class CampaignRequest(BaseModel):
     project_name: str
     prop_type: str
@@ -39,23 +34,18 @@ class CampaignRequest(BaseModel):
     features: str
     tone: str
 
-# Clerk authorization token signature validation handshake
 async def verify_clerk_user(authorization: str = Header(None)):
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or malformed Authorization header wrapper.")
-    
     token = authorization.split(" ")[1]
     if token == "local_sandbox_bypass_token":
         return {"user_id": "mock_agent_dev", "email": "sandbox@propblitz.ai"}
-        
-    # In production, this matches your Clerk user cache decoding sequence
     return {"user_id": "verified_clerk_agent"}
 
 @app.get("/")
 def read_root():
     return {"status": "active", "engine": "PropBlitz-AI Pipeline Engine", "cost": "0.00"}
 
-# Core Multi-Channel Marketing Content Generation Route
 @app.post("/api/generate-campaign")
 async def generate_campaign(request: CampaignRequest, user: dict = Depends(verify_clerk_user)):
     try:
@@ -63,7 +53,7 @@ async def generate_campaign(request: CampaignRequest, user: dict = Depends(verif
         
         system_instruction = f"""
         You are an expert real estate copywriter working for PropBlitz-AI. 
-        Create marketing materials using these exact property parameters:
+        Create beautifully formatted marketing materials using these exact property parameters:
         - Project / Society Name: {request.project_name}
         - Property Type & Build: {request.bhk} {request.prop_type}
         - Location Matrix: {request.locality}, {request.city}
@@ -77,12 +67,18 @@ async def generate_campaign(request: CampaignRequest, user: dict = Depends(verif
         2. IDENTITY MATCHING: Weave the actual property identity '{request.project_name}' seamlessly into the sentences. Never output '[Apartment Name]'.
         3. CONTACT FALLBACKS: Absolutely zero bracketed tags are permitted in the text. Do not output '[phone number]' or '[email address]'. Terminate all copy layouts cleanly with exactly this sentence: "Contact me to schedule an exclusive viewing."
         
+        RICH VISUAL FORMATTING REQUIREMENT:
+        - Use bold headers to separate sections.
+        - Use clean bullet points (like 📍, ✨, 💎, or 🏊) to make property features and amenities stand out immediately.
+        - Add a striking headline at the very top of each channel copy.
+        - Use standard line breaks (\n) to prevent dense walls of text.
+
         CRITICAL OUTPUT JSON FORMAT REQUIREMENT:
         You must return your output exclusively as a valid JSON object. Do not wrap the JSON object in markdown blocks (no ```json). 
-        The fields MUST be standard flat strings, NOT nested objects or lists. Follow this exact template structure:
+        The fields MUST be standard flat strings with escaped line breaks, NOT nested objects or lists. Follow this exact template structure:
         {{
-            "listing": "Write a descriptive, high-converting social property listing paragraph here.",
-            "whatsapp": "Write an engaging, emoji-rich broadcast blast message text variant here."
+            "listing": "🚨 HEADLINE HERE 🚨\n\nWrite a highly engaging, beautifully formatted social media listing paragraph here using bullets for features and bold tags for emphasis.",
+            "whatsapp": "🔥 BROADCAST HEADLINE 🔥\n\nWrite an emoji-rich, conversational, punchy WhatsApp blast message here with spaced-out lines for instant scanning."
         }}
         """
 
@@ -95,7 +91,7 @@ async def generate_campaign(request: CampaignRequest, user: dict = Depends(verif
                     "content": f"Generate the 2-channel real estate campaign JSON for {request.project_name}. Ensure 'listing' and 'whatsapp' keys contain flat string values only."
                 }
             ],
-            temperature=0.4, # Forced stability focus to prevent JSON formatting errors
+            temperature=0.4, 
             response_format={"type": "json_object"}  
         )
 
@@ -105,13 +101,11 @@ async def generate_campaign(request: CampaignRequest, user: dict = Depends(verif
             
         campaign_payload = json.loads(response_content)
         
-        # Build clean string maps defensively
         final_response = {
             "listing": str(campaign_payload.get("listing", "Content generation lagging. Please retry.")),
             "whatsapp": str(campaign_payload.get("whatsapp", "Content generation lagging. Please retry."))
         }
         
-        # Local state database history append tracking handler
         try:
             history_snapshot = {
                 "id": str(len(MOCK_CAMPAIGN_DB) + 1),
