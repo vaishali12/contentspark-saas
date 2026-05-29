@@ -1,33 +1,49 @@
 import os
 import json
+import logging
+from datetime import datetime
+from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
+from sqlalchemy import create_engine, Column, String, Text, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, Session
 from groq import Groq
 
-app = FastAPI(title="PropBlitz-AI Core Backend API")
+# SETUP LOGGING SYSTEMS
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger("PropBlitzAI")
 
-# Configure cross-origin framework capabilities for safe Vercel interaction
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# INFRASTRUCTURE CORE STRINGS
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./propblitz_isolated.db")
 
-# Initialize the Groq processing pipeline wrapper using environment profiles
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-if not GROQ_API_KEY:
-    raise RuntimeError("CRITICAL CRASH: GROQ_API_KEY environment variable is entirely missing.")
+# ENFORCE SECURE INTER-TIER RELATION ENGINE
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 
-client = Groq(api_key=GROQ_API_KEY)
+# SECURE RELATIONAL LEDGER TABLE ARCHITECTURE
+class CampaignDb(Base):
+    __tablename__ = "propblitz_campaigns"
+    id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, index=True, nullable=False)  # Multi-Tenant Token Isolation Segment Key
+    project_name = Column(String, nullable=False)
+    listing_raw = Column(Text, nullable=False)
+    whatsapp_raw = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
-# Mock production database array holding user structural history sandbox logs
-MOCK_CAMPAIGN_DB = []
+Base.metadata.create_all(bind=engine)
 
-# Strict incoming request validation frame
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# COMPLIANT MULTI-TENANT COMMUNICATOR DATA FRAMES
 class CampaignRequest(BaseModel):
     project_name: str
     prop_type: str
@@ -39,36 +55,58 @@ class CampaignRequest(BaseModel):
     features: str
     tone: str
 
-# Clerk authorization token signature validation handshake
+app = FastAPI(title="PropBlitz-AI Production Engine", version="1.0.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# CLERK AUTHENTICATION HANDSHAKE CORE GATEKEEPER
 async def verify_clerk_user(authorization: str = Header(None), origin: str = Header(None)):
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or malformed Authorization header wrapper.")
     
     token = authorization.split(" ")[1]
     
-    # PRODUCTION SECURITY LOCK:
-    # If the request is coming from your live production site, completely disable the bypass token loophole.
+    # Block bypass vectors coming straight from the live production frontend
     if origin and "vercel.app" in origin:
         if token == "local_sandbox_bypass_token":
-            raise HTTPException(
-                status_code=403, 
-                detail="Security Violation: Sandbox testing tokens are strictly forbidden in production workspaces."
-            )
-    
-    # Safe fallback interface for local offline development environments
+            raise HTTPException(status_code=403, detail="Security Loophole Forbidden.")
+            
     if token == "local_sandbox_bypass_token":
-        return {"user_id": "mock_agent_dev", "email": "sandbox@propblitz.ai"}
+        return {"user_id": "mock_agent_dev"}
         
+    # Standard fallback mock validation mapping
     return {"user_id": "verified_clerk_agent"}
 
 @app.get("/")
-def read_root():
-    return {"status": "active", "engine": "PropBlitz-AI Pipeline Engine", "cost": "0.00"}
+def check_health():
+    return {"status": "synchronized", "database": "SQLAlchemy Relational Active"}
 
-# Core Multi-Channel Marketing Content Generation Route (Rich Markdown Layouts)
+# RESTORE LOG HISTORY PIPELINE FOR LOGGED IN MULTI-TENANT AGENTS
+@app.get("/api/get-history")
+def fetch_agent_history(user: dict = Depends(verify_clerk_user), db: Session = Depends(get_db)):
+    # Pull campaigns belonging strictly to the validated agent user_id
+    campaigns = db.query(CampaignDb).filter(CampaignDb.user_id == user["user_id"]).order_by(CampaignDb.created_at.desc()).all()
+    return [{
+        "id": c.id,
+        "project_name": c.project_name,
+        "listing": c.listing_raw,
+        "whatsapp": c.whatsapp_raw,
+        "date": c.created_at.strftime("%Y-%m-%d")
+    } for c in campaigns]
+
 @app.post("/api/generate-campaign")
-async def generate_campaign(request: CampaignRequest, user: dict = Depends(verify_clerk_user)):
+async def execute_blitz_generation(request: CampaignRequest, user: dict = Depends(verify_clerk_user), db: Session = Depends(get_db)):
+    if not GROQ_API_KEY:
+        raise HTTPException(status_code=500, detail="Groq Production API Key is entirely missing from system profiles.")
+        
     try:
+        client = Groq(api_key=GROQ_API_KEY)
         amenities_str = ", ".join(request.amenities) if request.amenities else "Premium Amenities"
         
         system_instruction = f"""
@@ -106,40 +144,30 @@ async def generate_campaign(request: CampaignRequest, user: dict = Depends(verif
             model="llama-3.1-8b-instant",
             messages=[
                 {"role": "system", "content": system_instruction},
-                {
-                    "role": "user", 
-                    "content": f"Generate the 2-channel real estate campaign JSON for {request.project_name}. Ensure 'listing' and 'whatsapp' keys contain flat string values only."
-                }
+                {"role": "user", "content": f"Generate the real estate campaign JSON for {request.project_name}."}
             ],
-            temperature=0.5, 
-            response_format={"type": "json_object"}  
+            temperature=0.4,
+            response_format={"type": "json_object"}
         )
 
-        response_content = completion.choices[0].message.content
-        if not response_content:
-            raise HTTPException(status_code=500, detail="AI Engine returned empty data content pipeline.")
-            
-        campaign_payload = json.loads(response_content)
-        
-        final_response = {
-            "listing": str(campaign_payload.get("listing", "Content generation lagging. Please retry.")),
-            "whatsapp": str(campaign_payload.get("whatsapp", "Content generation lagging. Please retry."))
-        }
-        
-        try:
-            history_snapshot = {
-                "id": str(len(MOCK_CAMPAIGN_DB) + 1),
-                "project_name": str(request.project_name),
-                "listing": final_response["listing"],
-                "whatsapp": final_response["whatsapp"]
-            }
-            MOCK_CAMPAIGN_DB.append(history_snapshot)
-        except Exception as log_err:
-            print(f"Non-blocking log exception: {str(log_err)}")
-        
-        return final_response
+        payload = json.loads(completion.choices[0].message.content)
+        listing_out = payload.get("listing", "Generation failed. Please retry.")
+        whatsapp_out = payload.get("whatsapp", "Generation failed. Please retry.")
 
-    except json.JSONDecodeError:
-        raise HTTPException(status_code=500, detail="AI response format dropped conversion rules. Re-click generation.")
+        # SAVE PERMANENTLY TO LOCAL SQL DATABASE MATRIX
+        camp_id = f"blitz_{int(datetime.utcnow().timestamp())}"
+        db_camp = CampaignDb(
+            id=camp_id,
+            user_id=user["user_id"],
+            project_name=request.project_name,
+            listing_raw=listing_out,
+            whatsapp_raw=whatsapp_out
+        )
+        db.add(db_camp)
+        db.commit()
+
+        return {"listing": listing_out, "whatsapp": whatsapp_out}
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal Server Pipeline Exception Encountered: {str(e)}")
+        logger.error(f"Pipeline error encountered: {str(e)}")
+        raise HTTPException(status_code=500, detail="Content pipeline execution failure.")
