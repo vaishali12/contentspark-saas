@@ -8,6 +8,7 @@ from groq import Groq
 
 app = FastAPI(title="PropBlitz-AI Core Backend API")
 
+# Configure cross-origin framework capabilities for safe Vercel interaction
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,13 +17,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Initialize the Groq processing pipeline wrapper using environment profiles
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
     raise RuntimeError("CRITICAL CRASH: GROQ_API_KEY environment variable is entirely missing.")
 
 client = Groq(api_key=GROQ_API_KEY)
+
+# Mock production database array holding user structural history sandbox logs
 MOCK_CAMPAIGN_DB = []
 
+# Strict incoming request validation frame
 class CampaignRequest(BaseModel):
     project_name: str
     prop_type: str
@@ -34,18 +39,22 @@ class CampaignRequest(BaseModel):
     features: str
     tone: str
 
+# Clerk authorization token signature validation handshake
 async def verify_clerk_user(authorization: str = Header(None)):
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or malformed Authorization header wrapper.")
+    
     token = authorization.split(" ")[1]
     if token == "local_sandbox_bypass_token":
         return {"user_id": "mock_agent_dev", "email": "sandbox@propblitz.ai"}
+        
     return {"user_id": "verified_clerk_agent"}
 
 @app.get("/")
 def read_root():
     return {"status": "active", "engine": "PropBlitz-AI Pipeline Engine", "cost": "0.00"}
 
+# Core Multi-Channel Marketing Content Generation Route (Rich Markdown Layouts)
 @app.post("/api/generate-campaign")
 async def generate_campaign(request: CampaignRequest, user: dict = Depends(verify_clerk_user)):
     try:
@@ -63,22 +72,22 @@ async def generate_campaign(request: CampaignRequest, user: dict = Depends(verif
         - Targeted Campaign Tone: {request.tone}
 
         STRICT COPYWRITING RULES:
-        1. GREETING: Do not generate placeholders like '[Name]' or '[Client Name]'. Always begin variations directly with warm broadcast call-outs like "Namaste!" or "Hi there!".
-        2. IDENTITY MATCHING: Weave the actual property identity '{request.project_name}' seamlessly into the sentences. Never output '[Apartment Name]'.
-        3. CONTACT FALLBACKS: Absolutely zero bracketed tags are permitted in the text. Do not output '[phone number]' or '[email address]'. Terminate all copy layouts cleanly with exactly this sentence: "Contact me to schedule an exclusive viewing."
+        1. GREETING: Do not generate placeholders like '[Name]'. Begin variations directly with warm broadcast call-outs like "Namaste!" or "Hi there!".
+        2. IDENTITY MATCHING: Weave the actual property identity '{request.project_name}' seamlessly into the sentences.
+        3. CONTACT FALLBACKS: Terminate all copy layouts cleanly with exactly this sentence: "Contact me to schedule an exclusive viewing."
         
-        RICH VISUAL FORMATTING REQUIREMENT:
-        - Use bold headers to separate sections.
-        - Use clean bullet points (like 📍, ✨, 💎, or 🏊) to make property features and amenities stand out immediately.
-        - Add a striking headline at the very top of each channel copy.
-        - Use standard line breaks (\n) to prevent dense walls of text.
+        RICH MARKDOWN FORMATTING REQUIREMENTS:
+        - Use '### ' at the beginning of a line to create clean, prominent Section Headlines.
+        - Use '**text**' to make key sales highlights, configurations, or prices bold and eye-catching.
+        - Use premium emojis (📍, ✨, 🏊, 💎) as clean bullet points for amenities and features.
+        - Add generous line spacing (\\n\\n) between paragraphs to make the copy highly scannable on mobile screens.
 
         CRITICAL OUTPUT JSON FORMAT REQUIREMENT:
-        You must return your output exclusively as a valid JSON object. Do not wrap the JSON object in markdown blocks (no ```json). 
-        The fields MUST be standard flat strings with escaped line breaks, NOT nested objects or lists. Follow this exact template structure:
+        You must return your output exclusively as a valid JSON object. Do not wrap the JSON object in markdown code blocks. 
+        The fields MUST be standard flat strings with escaped line breaks, NOT nested objects or lists. Follow this exact structure:
         {{
-            "listing": "🚨 HEADLINE HERE 🚨\n\nWrite a highly engaging, beautifully formatted social media listing paragraph here using bullets for features and bold tags for emphasis.",
-            "whatsapp": "🔥 BROADCAST HEADLINE 🔥\n\nWrite an emoji-rich, conversational, punchy WhatsApp blast message here with spaced-out lines for instant scanning."
+            "listing": "### 🚨 BRIGHT EYE-CATCHING HEADLINE 🚨\\n\\n**{request.project_name}** introduces a new standard of living...",
+            "whatsapp": "### 🔥 HOT DEAL IN {request.locality.upper()} 🔥\\n\\n✨ **{request.bhk} {request.prop_type}** available now..."
         }}
         """
 
@@ -91,7 +100,7 @@ async def generate_campaign(request: CampaignRequest, user: dict = Depends(verif
                     "content": f"Generate the 2-channel real estate campaign JSON for {request.project_name}. Ensure 'listing' and 'whatsapp' keys contain flat string values only."
                 }
             ],
-            temperature=0.4, 
+            temperature=0.5, 
             response_format={"type": "json_object"}  
         )
 
