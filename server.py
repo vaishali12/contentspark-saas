@@ -9,9 +9,9 @@ import json
 from fastapi import FastAPI, Depends, HTTPException, status
 from groq import Groq
 
-app = FastAPI()
 
-from fastapi.middleware.cors import CORSMiddleware
+app = FastAPI()
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 # Paste this right below app = FastAPI()
 app.add_middleware(
@@ -94,6 +94,8 @@ def verify_clerk_user(authorization: str):
 def health_check():
     return {"status": "online", "engine": "PropBlitz-AI Core Online"}
 
+
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 @app.post("/api/generate-campaign")
 async def generate_campaign(request: CampaignRequest):
     try:
