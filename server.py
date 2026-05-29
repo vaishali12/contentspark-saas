@@ -5,6 +5,9 @@ import os
 import requests
 import jwt
 import sqlite3
+import json
+from fastapi import FastAPI, Depends, HTTPException, status
+from groq import Groq
 
 app = FastAPI()
 
@@ -29,10 +32,13 @@ app.add_middleware(
 
 # 🚀 UPGRADE 2: Updated structured parameter validation schema
 class CampaignRequest(BaseModel):
+    project_name: str  # 🌟 Added to match frontend!
     prop_type: str
     city: str
     locality: str
     price: str
+    bhk: str
+    amenities: list
     features: str
     tone: str
 
@@ -89,90 +95,63 @@ def health_check():
     return {"status": "online", "engine": "PropBlitz-AI Core Online"}
 
 @app.post("/api/generate-campaign")
-def generate_real_estate_campaign(payload: CampaignRequest, authorization: str = Header(None)):
-    current_agent_id = verify_clerk_user(authorization)
-    
-    # Put your genuine groq credential string here
-    groq_api_key = "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"
-
-    system_prompt = (
-        "You are PropBlitz-AI, a world-class real estate marketing copywriter. "
-        "Your task is to take structured property metrics and generate ultra-high converting copy across 3 distinct marketing channels. "
-        "Do not include any chat filler or extra conversational sentences."
-    )
-    
-    # 🎯 UPGRADE 3: Richly structured data formatting block for the AI Engine
-    user_prompt = f"""
-    PROPERTY MARKETING CONFIGURATION MATRIX:
-    - Asset Classification: {payload.prop_type}
-    - Micro-Market / Area Location: {payload.locality}
-    - City Metro Area: {payload.city}
-    - Listed Value / Price Range: {payload.price}
-    - Key Selling Points / Infrastructure Assets: {payload.features}
-    - Core Psychological Marketing Persona / Tone: {payload.tone}
-
-    Generate a comprehensive marketing bundle with exactly three sections separated clearly by these exact structural special markers.
-
-    ===START_LISTING===
-    Create a professional, highly descriptive real estate listing advertisement. Include a scroll-stopping headline, detailed description paragraph, and bullet points highlighting the property USPs. Use real estate emojis tastefully.
-    ===END_LISTING===
-
-    ===START_VIDEO===
-    Write a high-converting, viral-ready script for an Instagram Reel or YouTube Short. Group the script content into a neat step-by-step visual workflow timeline format including exactly what to show on screen (Visuals) and what to voice over out loud (Audio). Keep it highly punchy and direct!
-    ===END_VIDEO===
-
-    ===START_WHATSAPP===
-    Draft a short, actionable, punchy WhatsApp Blast message designed to create high urgency inside local real estate investment networks and broadcast groups.
-    ===END_WHATSAPP===
-    """
-
+async def generate_campaign(request: CampaignRequest):
     try:
-        response = requests.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {groq_api_key}",
-                "Content-Type": "application/json"
-            },
-            json={
-                "model": "llama-3.1-8b-instant",
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                "temperature": 0.7
-            },
-            timeout=15
+        # Construct the strict system prompt instructions
+        system_instruction = f"""
+        You are an expert real estate copywriter. Generate 3 distinct marketing channels using these exact values:
+        - Project Name/Society Name: {request.project_name}
+        - Property Type & Configuration: {request.bhk} {request.prop_type}
+        - Location Matrix: {request.locality}, {request.city}
+        - Pricing Structure: {request.price}
+        - Core Amenities Deck: {', '.join(request.amenities)}
+        - Strategic Summary & Features: {request.features}
+        - Target Persona Tone: {request.tone}
+
+        STRICT WRITING DIRECTIVES (CRITICAL TO BRAND IDENTITY):
+        1. GREETING: Do not use placeholders like '[Name]' or '[Client Name]'. Always greet users universally using warm broadcast terms like "Namaste!" or "Hi there!".
+        2. PROJECT ASSIGNMENT: Weave the actual project name '{request.project_name}' smoothly into sentences. Never output '[Apartment Name]'.
+        3. NO PLACEHOLDERS: Absolutely zero bracketed labels are permitted in the generated output text block. Do not write '[phone number]' or '[email address]'. End the call-to-action blocks clearly with: "Contact me to schedule an exclusive viewing."
+        
+        OUTPUT FORMAT REQUIREMENTS:
+        You must return your response as a valid JSON object. Do not include any conversational introduction text or markdown code blocks (like ```json). Use exactly these keys:
+        {{
+            "listing": "Write the detailed property listing ad copy here using the targeted tone.",
+            "video": "Write a highly engaging Instagram Reels/TikTok video script here with visual cues.",
+            "whatsapp": "Write a short, punchy, emoji-rich WhatsApp broadcast blast message here."
+        }}
+        """
+
+        # Call the Groq API using Llama 3
+        completion = client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=[
+                {"role": "system", "content": system_instruction},
+                {
+                    "role": "user", 
+                    "content": f"Generate a matching 3-channel real estate campaign framework for {request.project_name} in {request.locality} with a {request.tone} tone."
+                }
+            ],
+            temperature=0.7,
+            response_format={"type": "json_object"} # Forces the LLM to output pure JSON
         )
+
+        # Parse the raw string response from Groq directly into Python JSON
+        response_text = completion.choices[0].message.content
+        campaign_data = json.loads(response_text)
         
-        if response.status_code != 200:
-            raise HTTPException(status_code=500, detail=f"Groq API Exception: {response.text}")
-        
-        ai_raw_text = response.json()['choices'][0]['message']['content']
+        return campaign_data
 
-        # Parsing strings securely
-        listing_content = ai_raw_text.split("===START_LISTING===")[1].split("===END_LISTING===")[0].strip() if "===START_LISTING===" in ai_raw_text else ai_raw_text
-        video_content = ai_raw_text.split("===START_VIDEO===")[1].split("===END_VIDEO===")[0].strip() if "===START_VIDEO===" in ai_raw_text else "Video script parsing error."     
-        # 🚀 FIX: What if the AI generates a blank string? We need to catch that!
-        whatsapp_content = ai_raw_text.split("===START_WHATSAPP===")[1].split("===END_WHATSAPP===")[0].strip() if "===START_WHATSAPP===" in ai_raw_text else "WhatsApp parsing error."
-
-        # Save record entries log to SQLite
-        conn = sqlite3.connect(DB_FILE)
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO campaigns (agent_id, prop_type, city, locality, price, features, tone, listing, video, whatsapp)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (current_agent_id, payload.prop_type, payload.city, payload.locality, payload.price, payload.features, payload.tone, listing_content, video_content, whatsapp_content))
-        conn.commit()
-        conn.close()
-
-        return {
-            "listing": listing_content,
-            "video": video_content,
-            "whatsapp": whatsapp_content
-        }
-
-    except Exception as err:
-        raise HTTPException(status_code=500, detail=f"Backend processing failure: {str(err)}")
+    except json.JSONDecodeError:
+        raise HTTPException(
+            status_code=500, 
+            detail="AI failed to generate a valid JSON campaign structure. Please try again."
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Internal Server Pipeline Failure: {str(e)}"
+        )
 
 @app.get("/api/my-campaigns")
 def get_agent_campaigns(authorization: str = Header(None)):
