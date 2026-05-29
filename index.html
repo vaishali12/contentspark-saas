@@ -196,17 +196,15 @@
         // Dynamic Async Script Loader Helper Function
         function injectClerkScriptSDK() {
             return new Promise((resolve, reject) => {
+                if (window.Clerk) return resolve(); // Prevent double injection
                 const script = document.createElement('script');
                 script.setAttribute('data-clerk-publishable-key', CLERK_PUBLISHABLE_KEY);
                 script.async = true;
                 script.crossOrigin = "anonymous";
                 script.src = "https://modern-mulet-68.clerk.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js";
                 
-                script.onload = () => {
-                    console.log("Clerk CDN payload successfully resolved.");
-                    resolve();
-                };
-                script.onerror = () => reject(new Error("Clerk asset pipeline initialization failure. Check connection or ad-blockers."));
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error("Clerk asset pipeline initialization failure."));
                 document.head.appendChild(script);
             });
         }
@@ -293,28 +291,6 @@
             }
         }
 
-        // Action trigger function for embedded login execution mapping
-        function triggerEmbeddedSignIn() {
-            const intro = document.getElementById('auth-intro-card');
-            const targetNode = document.getElementById('clerk-embedded-signin-container');
-            
-            if (globalClerkInstance) {
-                if (intro) intro.remove(); // Safely clear introductory text
-                globalClerkInstance.mountSignIn(targetNode, {
-                    appearance: {
-                        variables: {
-                            colorPrimary: '#2563eb',
-                            colorBackground: '#ffffff',
-                            colorText: '#1f2937',
-                            borderRadius: '0.75rem'
-                        }
-                    }
-                });
-            } else {
-                alert("The secure workspace environment is still configuring. Please wait 2 seconds and retry.");
-            }
-        }
-
         async function triggerCampaignGeneration() {
             const btn = document.getElementById('generateBtn');
             const loader = document.getElementById('loadingOverlay');
@@ -383,41 +359,55 @@
             }
         }
 
-        // Orchestrated Core Master Lifecycle Loop
+        // LOOPHOLE-FREE AUTOMATED EVENT LIFECYCLE
         window.addEventListener('DOMContentLoaded', async function () {
             loadCampaignsFromLocalStorage();
             const splash = document.getElementById('app-loading-screen');
+            const targetNode = document.getElementById('clerk-embedded-signin-container');
             
             try {
-                // Step 1: Inject SDK Script tag directly into memory map safely
+                // Step 1: Force download completion of script
                 await injectClerkScriptSDK();
 
-                // Step 2: Instantiation mapping validation
                 if (window.Clerk) {
-                    // Create a dedicated instance linking your unique Publishable Key explicitly
+                    // Step 2: Initialize Constructor Instance
                     globalClerkInstance = new window.Clerk(CLERK_PUBLISHABLE_KEY);
                     await globalClerkInstance.load();
 
-                    // Step 3: Clear the bottom wake-up spinner as soon as instances align
+                    // Step 3: Remove the bottom background loading widget immediately
                     if (splash) {
                         splash.style.opacity = '0';
                         setTimeout(() => splash.remove(), 300);
                     }
 
-                    // Step 4: Profile Route Evaluation Handshake
+                    // Step 4: Handle Route Options Based on Session Status
                     if (globalClerkInstance.user) {
+                        // User is authenticated, wipe out the blocking overlay layer
                         const overlay = document.getElementById('auth-lock-overlay');
-                        if (overlay) overlay.remove(); // Drop entire overlay instantly for authenticated users
+                        if (overlay) overlay.remove();
                         
                         const firstName = globalClerkInstance.user.firstName || "Agent";
                         document.getElementById('welcome-greeting').innerHTML = `Welcome, <span class="font-bold text-blue-600">${firstName}</span>! 👋`;
                         globalClerkInstance.mountUserButton(document.getElementById('user-button'));
+                    } else {
+                        // ZERO CLICK LOOPHOLE FIX: Remove the text card and auto-inject Clerk sign-in form immediately
+                        const introCard = document.getElementById('auth-intro-card');
+                        if (introCard) introCard.remove();
+                        
+                        globalClerkInstance.mountSignIn(targetNode, {
+                            appearance: {
+                                variables: {
+                                    colorPrimary: '#2563eb',
+                                    colorBackground: '#ffffff',
+                                    colorText: '#1f2937',
+                                    borderRadius: '0.75rem'
+                                }
+                            }
+                        });
                     }
-                } else {
-                    throw new Error("Global core window script namespace mismatch.");
                 }
             } catch (error) {
-                console.error("Master architecture load fallback caught:", error);
+                console.error("Master framework loading drop handled:", error);
                 if (splash) splash.remove();
             }
         });
