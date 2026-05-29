@@ -51,12 +51,20 @@ async def verify_clerk_user(authorization: str = Header(None)):
     Validates inbound authorization traffic. Temporarily returns a verified 
     state so you can test and share the application instantly without Clerk API blockages.
     """
-    if not authorization or not authorization.startswith("Bearer "):
-        if authorization == "Bearer local_sandbox_bypass_token":
-            return {"user_id": "sandbox_dev_agent"}
+    if not authorization:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing or malformed Authorization header credentials."
+            detail="Missing Authorization header credentials."
+        )
+        
+    # Handle the Sandbox bypass token coming from the frontend
+    if authorization == "Bearer local_sandbox_bypass_token":
+        return {"user_id": "sandbox_dev_agent"}
+        
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Malformed Authorization header credentials."
         )
     
     # 🌟 BYPASS CLERK BACKEND HANDSHAKE FOR SEAMLESS LAUNCH TESTING
@@ -146,8 +154,8 @@ async def generate_campaign(request: CampaignRequest, user: dict = Depends(verif
             detail=f"Internal Server Pipeline Exception Encountered: {str(e)}"
         )
 
-# 9. 🌟 RESTORED: Main Local Runtime Execution Engine
+# 9. 🌟 FIXED: Correct Local Runtime Execution Module Name
 if __name__ == "__main__":
     import uvicorn
-    # This executes uvicorn on port 8000 automatically whenever you run this file locally
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    # Changed from "main:app" to "server:app" to prevent module look-up initialization failures.
+    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
