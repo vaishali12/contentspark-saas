@@ -11,18 +11,14 @@
 </head>
 <body class="bg-gray-50 min-h-screen text-gray-800 font-sans antialiased">
 
-    <!-- Premium App Initialization Splash Screen -->
-    <div id="app-loading-screen" class="fixed inset-0 bg-white flex flex-col items-center justify-center z-50 transition-opacity duration-300">
-        <div class="flex items-center space-x-3 mb-4 animate-bounce">
-            <span class="text-4xl">⚡</span>
-            <h1 class="text-2xl font-bold tracking-tight text-blue-600">PropBlitz-AI</h1>
-        </div>
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
-        <p class="text-sm font-medium text-gray-500">Securing environment connection...</p>
+    <!-- Non-blocking System Wake-up Loader -->
+    <div id="app-loading-screen" class="fixed bottom-4 right-4 bg-white border border-gray-200 px-4 py-3 rounded-xl shadow-xl z-50 flex items-center space-x-3 transition-opacity duration-300">
+        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+        <p class="text-xs font-semibold text-gray-600">Connecting to PropBlitz-AI Engine...</p>
     </div>
 
-    <!-- Application Top Navbar Container -->
-    <div id="app-container" style="display: none;" class="max-w-7xl mx-auto px-4 py-4 md:py-6">
+    <!-- Application Dashboard Layout (Instantly Visible) -->
+    <div id="app-container" class="max-w-7xl mx-auto px-4 py-4 md:py-6">
         <!-- Unified Brand Naming Consistent with PropBlitz-AI -->
         <header class="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
             <div class="flex items-center space-x-2">
@@ -33,26 +29,31 @@
             <div id="user-button"></div>
         </header>
 
-        <!-- Mobile Responsive Grid (Stacks on Mobile, Side-by-Side on Desktop) -->
+        <!-- Mobile Responsive Grid -->
         <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
             
-            <!-- Left Panel: Input Profile Dashboard Form & History (Takes 5 columns on desktop) -->
+            <!-- Left Panel -->
             <div class="lg:col-span-5 space-y-6">
-                <section class="bg-white p-5 md:p-6 rounded-2xl shadow-md border border-gray-100 space-y-5">
+                <section class="bg-white p-5 md:p-6 rounded-2xl shadow-md border border-gray-100 space-y-5 relative">
+                    <!-- Authentication/Wake-up Overlay for specific panel control -->
+                    <div id="auth-lock-overlay" class="absolute inset-0 bg-white bg-opacity-80 z-20 flex flex-col items-center justify-center p-4 text-center rounded-2xl">
+                        <span class="text-3xl mb-2 animate-pulse">⚡</span>
+                        <h3 class="text-sm font-bold text-gray-700">Authentication Required</h3>
+                        <p class="text-xs text-gray-500 max-w-xs mt-1">Please log in or wait for the environment to finish syncing.</p>
+                        <button onclick="retryClerkLogin()" class="mt-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 rounded-lg shadow">Sign In / Register</button>
+                    </div>
+
                     <div>
-                        <!-- Dynamic Clerk session greeting -->
                         <h2 id="welcome-greeting" class="text-lg text-gray-600 mb-1">Welcome, Agent!</h2>
                         <p class="text-xs md:text-sm text-gray-500">Fill out property details to instantly blast multi-channel marketing campaigns.</p>
                     </div>
 
                     <div class="space-y-4">
-                        <!-- Project/Society Name Field -->
                         <div>
                             <label for="projectName" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Project / Society Name</label>
                             <input type="text" id="projectName" placeholder="e.g., Prestige Shantiniketan / Godrej Woods" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
 
-                        <!-- Field 1: Property Type Selection -->
                         <div>
                             <label for="propType" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Property Type</label>
                             <select id="propType" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -64,7 +65,6 @@
                             </select>
                         </div>
 
-                        <!-- Fields 2 & 3: Localized Location Matrix -->
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label for="city" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">City</label>
@@ -76,7 +76,6 @@
                             </div>
                         </div>
 
-                        <!-- Layout Matrix for Price and Configuration Layouts -->
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label for="price" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Price / Investment</label>
@@ -94,7 +93,6 @@
                             </div>
                         </div>
 
-                        <!-- Amenities Checkbox Collection Grid -->
                         <div>
                             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Core Amenities</label>
                             <div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-lg border border-gray-200 text-xs md:text-sm">
@@ -105,13 +103,11 @@
                             </div>
                         </div>
 
-                        <!-- Field 5: Key Amenities Descriptions -->
                         <div>
-                            <label_ for="features" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Key Features / Description</label_>
+                            <label for="features" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Key Features / Description</label>
                             <textarea id="features" rows="3" placeholder="e.g., Private plunge pool, ultra-modern modular kitchen, east-facing vaastu compliant" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                         </div>
 
-                        <!-- Field 6: Marketing Persona/Tone Selection Dropdown -->
                         <div>
                             <label for="tone" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Marketing Tone</label>
                             <select id="tone" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -121,52 +117,44 @@
                             </select>
                         </div>
 
-                        <!-- Execution Action Button with Integrated UI Loading State -->
                         <button id="generateBtn" onclick="triggerCampaignGeneration()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition-colors flex items-center justify-center space-x-2">
                             <span>✨ Generate Blitz Campaign</span>
                         </button>
                     </div>
                 </section>
 
-                <!-- ZERO-COST FEATURE: Live Local Campaign History Panel -->
+                <!-- History Panel -->
                 <section class="bg-white p-5 rounded-2xl shadow-md border border-gray-100 space-y-3">
                     <div class="flex justify-between items-center">
                         <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500">🕒 Recent Blitz History</h3>
                         <button onclick="clearAllCampaignHistory()" class="text-xs text-red-500 hover:underline">Clear All</button>
                     </div>
                     <div id="history-list" class="space-y-2 max-h-[180px] overflow-y-auto pr-1 text-xs text-gray-500">
-                        <!-- History list items load dynamically here -->
                         <p class="text-gray-400 italic">No past campaigns found in this browser sandbox yet.</p>
                     </div>
                 </section>
             </div>
 
-            <!-- Right Panel: Multi-Channel Output Interface (Takes 7 columns on desktop) -->
+            <!-- Right Panel -->
             <section class="lg:col-span-7 bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden flex flex-col min-h-[450px] md:min-h-[500px]">
-                
-                <!-- Navigation Tabs Panel -->
                 <div class="flex border-b border-gray-100 bg-gray-50 overflow-x-auto">
                     <button onclick="switchTab('listingTab', this)" class="tab-btn flex-1 min-w-[100px] py-4 px-2 text-center text-xs md:text-sm font-semibold border-b-2 border-blue-600 text-blue-600 bg-white focus:outline-none">📋 Listing Ad</button>
                     <button onclick="switchTab('videoTab', this)" class="tab-btn flex-1 min-w-[100px] py-4 px-2 text-center text-xs md:text-sm font-semibold text-gray-500 hover:text-gray-700 focus:outline-none">🎬 Video Script</button>
                     <button onclick="switchTab('whatsappTab', this)" class="tab-btn flex-1 min-w-[100px] py-4 px-2 text-center text-xs md:text-sm font-semibold text-gray-500 hover:text-gray-700 focus:outline-none">💬 WhatsApp Blast</button>
                 </div>
 
-                <!-- Top Action Panel with Instant One-Click Copy Tool -->
                 <div class="bg-gray-50 px-6 py-2 border-b border-gray-100 flex justify-end">
                     <button onclick="copyCurrentTabContent()" class="bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center space-x-1 shadow-sm">
                         <span>📋</span> <span id="copyBtnText">Copy Output</span>
                     </button>
                 </div>
 
-                <!-- Dynamic Output Screen Displays -->
                 <div class="p-6 flex-1 bg-white overflow-y-auto relative">
-                    <!-- Visual Content Skeleton Overlay Screen -->
                     <div id="loadingOverlay" class="absolute inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center space-y-3 hidden z-10">
                         <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
                         <p class="text-sm font-medium text-gray-600 animate-pulse">Brewing high-converting copy layouts...</p>
                     </div>
 
-                    <!-- Output Panels -->
                     <div id="listingTab" class="output-content whitespace-pre-wrap text-sm md:text-base text-gray-700 leading-relaxed">Your generated AI marketing copy will appear here instantly...</div>
                     <div id="videoTab" class="output-content whitespace-pre-wrap text-sm md:text-base text-gray-700 leading-relaxed hidden">Select or generate content to see your Instagram/TikTok script...</div>
                     <div id="whatsappTab" class="output-content whitespace-pre-wrap text-sm md:text-base text-gray-700 leading-relaxed hidden">Broadcast-ready WhatsApp group content layout frames load here...</div>
@@ -175,7 +163,6 @@
         </main>
     </div>
 
-    <!-- UI/UX Event Handlers & Security Management Integration Scripts -->
     <script>
         let currentActiveTabId = "listingTab";
         let localCampaignsCache = [];
@@ -209,7 +196,6 @@
             }
         }
 
-        // Zero-Cost Local History Engines
         function loadCampaignsFromLocalStorage() {
             const data = localStorage.getItem('propblitz_history');
             localCampaignsCache = data ? JSON.parse(data) : [];
@@ -223,7 +209,7 @@
                 timestamp: new Date().toLocaleDateString(),
                 ...campaignData
             };
-            localCampaignsCache.unshift(newRecord); // Add to top
+            localCampaignsCache.unshift(newRecord);
             localStorage.setItem('propblitz_history', JSON.stringify(localCampaignsCache));
             renderHistoryUI();
         }
@@ -260,6 +246,14 @@
                 localStorage.removeItem('propblitz_history');
                 localCampaignsCache = [];
                 renderHistoryUI();
+            }
+        }
+
+        function retryClerkLogin() {
+            if (window.Clerk) {
+                Clerk.openSignIn({ appearance: { variables: { colorPrimary: '#2563eb' } } });
+            } else {
+                alert("The secure engine is still waking up. Please try again in a brief moment.");
             }
         }
 
@@ -318,14 +312,12 @@
                     document.getElementById('listingTab').innerText = result.listing;
                     document.getElementById('videoTab').innerText = result.video;
                     document.getElementById('whatsappTab').innerText = result.whatsapp;
-                    
-                    // SAVE ZERO-COST CAMPAIGN INTERNALLY ON FRONTEND
                     saveCampaignToLocalStorage(pName, result);
                 } else {
                     alert(`⚠️ Backend validation error: ${JSON.stringify(result)}`);
                 }
             } catch (err) {
-                alert(`🛑 Connection connection pipeline failure: ${err.message}`);
+                alert(`🛑 Connection pipeline failure: ${err.message}`);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<span>✨ Generate Blitz Campaign</span>`;
@@ -335,25 +327,24 @@
 
         window.addEventListener('load', async function () {
             const splash = document.getElementById('app-loading-screen');
+            loadCampaignsFromLocalStorage();
+            
             try {
                 await Clerk.load();
                 if (splash) { splash.style.opacity = '0'; setTimeout(() => splash.remove(), 300); }
 
                 if (Clerk.user) {
-                    document.getElementById('app-container').style.display = 'block';
+                    document.getElementById('auth-lock-overlay').remove(); // Instantly unlock form features
                     const firstName = Clerk.user.firstName || "Agent";
                     document.getElementById('welcome-greeting').innerHTML = `Welcome, <span class="font-bold text-blue-600">${firstName}</span>! 👋`;
                     Clerk.mountUserButton(document.getElementById('user-button'));
-                    
-                    // Fire local drawer database load
-                    loadCampaignsFromLocalStorage();
                 } else {
                     Clerk.openSignIn({ appearance: { variables: { colorPrimary: '#2563eb' } } });
                 }
             } catch (error) {
-                document.getElementById('app-container').style.display = 'block';
-                splash?.remove();
-                loadCampaignsFromLocalStorage();
+                console.error("Clerk system load exception handled.", error);
+                // Fallback bypass layout safety switch
+                if (splash) splash.remove();
             }
         });
     </script>
