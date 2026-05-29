@@ -40,13 +40,18 @@
                             Unlock PropBlitz-AI
                         </h3>
                         <p class="text-xs text-slate-300 max-w-xs px-4 mb-6 leading-relaxed font-medium">
-                            Sign in to sync your profile workspace and instantly start blasting high-converting real estate campaigns.
+                            Sign in or register a new workspace to instantly start blasting high-converting multi-channel campaigns.
                         </p>
 
-                        <a href="https://modern-mulet-68.accounts.dev/sign-up" class="w-full max-w-[220px] bg-white hover:bg-slate-100 text-slate-900 text-xs font-extrabold py-3.5 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all transform active:scale-95 flex items-center justify-center space-x-2 decoration-none">
-                            <span>Get Started Instantly</span>
-                            <span class="font-bold">→</span>
-                        </a>
+                        <div class="w-full max-w-[280px] flex flex-col space-y-3">
+                            <button onclick="triggerClerkRegisterModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold py-3.5 px-4 rounded-xl shadow-md transition-all transform active:scale-95 flex items-center justify-center space-x-2">
+                                <span>✨ Create Account (Sign Up)</span>
+                            </button>
+                            
+                            <button onclick="triggerClerkLoginModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold py-3 px-4 rounded-xl transition-all transform active:scale-95 flex items-center justify-center space-x-2">
+                                <span>🔑 Existing Agent Login</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div>
@@ -260,6 +265,23 @@
             }
         }
 
+        // 🌟 NATIVE IMPLEMENTATION ACTIONS MAPPED DIRECTLY TO YOUR BLUEPRINT SPECS
+        function triggerClerkRegisterModal() {
+            if (window.Clerk) {
+                Clerk.openSignUp({ appearance: { variables: { colorPrimary: '#2563eb' } } });
+            } else {
+                alert("Authentication loop initializing. Please retry in 2 seconds.");
+            }
+        }
+
+        function triggerClerkLoginModal() {
+            if (window.Clerk) {
+                Clerk.openSignIn({ appearance: { variables: { colorPrimary: '#2563eb' } } });
+            } else {
+                alert("Authentication loop initializing. Please retry in 2 seconds.");
+            }
+        }
+
         async function triggerCampaignGeneration() {
             const btn = document.getElementById('generateBtn');
             const loader = document.getElementById('loadingOverlay');
@@ -338,7 +360,7 @@
                     await Clerk.load();
 
                     if (Clerk.user) {
-                        // USER LOGGED IN: Destroy the lock card immediately and mount profile button
+                        // User Verified: Destroy the login lock wall entirely
                         if (lockOverlay) lockOverlay.remove();
                         if (splash) splash.remove();
                         
@@ -346,12 +368,11 @@
                         document.getElementById('welcome-greeting').innerHTML = `Welcome, <span class="font-bold text-blue-600">${firstName}</span>! 👋`;
                         Clerk.mountUserButton(document.getElementById('user-button'));
                     } else {
-                        // USER LOGGED OUT: Keep the lock overlay active, clear the footer loader spinner safely
+                        // User Logged Out: Drop the load screen, but keep the core dark card lock up
                         if (splash) splash.remove();
                         console.log("Onboarding verification completed: System locked pending agent signup.");
                     }
                 } else {
-                    // Script block fallback
                     if (splash) splash.remove();
                     if (lockOverlay) lockOverlay.remove();
                 }
