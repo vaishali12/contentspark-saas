@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PropBlitz-AI - Real Estate Marketing Dashboard</title>
+    <!-- Tailwind CSS for modern responsive layout styling -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Clerk Authentication SDK Browser Script -->
     <script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_bW9kZXJuLW11bGV0LTY4LmNsZXJrLmFjY291bnRzLmRldiQ" src="https://modern-mulet-68.clerk.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js" type="text/javascript"></script>
 </head>
 <body class="bg-gray-50 min-h-screen text-gray-800 font-sans antialiased">
 
+    <!-- Premium App Initialization Splash Screen -->
     <div id="app-loading-screen" class="fixed inset-0 bg-white flex flex-col items-center justify-center z-50 transition-opacity duration-300">
         <div class="flex items-center space-x-3 mb-4 animate-bounce">
             <span class="text-4xl">⚡</span>
@@ -18,118 +21,152 @@
         <p class="text-sm font-medium text-gray-500">Securing environment connection...</p>
     </div>
 
+    <!-- Application Top Navbar Container -->
     <div id="app-container" style="display: none;" class="max-w-7xl mx-auto px-4 py-4 md:py-6">
+        <!-- Unified Brand Naming Consistent with PropBlitz-AI -->
         <header class="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
             <div class="flex items-center space-x-2">
                 <span class="text-2xl md:text-3xl">⚡</span>
                 <h1 class="text-lg md:text-xl font-bold tracking-tight text-blue-600">PropBlitz-AI Dashboard</h1>
             </div>
+            <!-- Dynamic User Button Handoff Anchor -->
             <div id="user-button"></div>
         </header>
 
+        <!-- Mobile Responsive Grid (Stacks on Mobile, Side-by-Side on Desktop) -->
         <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
             
-            <section class="lg:col-span-5 bg-white p-5 md:p-6 rounded-2xl shadow-md border border-gray-100 space-y-5">
-                <div>
-                    <h2 id="welcome-greeting" class="text-lg text-gray-600 mb-1">Welcome, Agent!</h2>
-                    <p class="text-xs md:text-sm text-gray-500">Fill out property details to instantly blast multi-channel marketing campaigns.</p>
-                </div>
-
-                <div class="space-y-4">
+            <!-- Left Panel: Input Profile Dashboard Form & History (Takes 5 columns on desktop) -->
+            <div class="lg:col-span-5 space-y-6">
+                <section class="bg-white p-5 md:p-6 rounded-2xl shadow-md border border-gray-100 space-y-5">
                     <div>
-                        <label for="projectName" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Project / Society Name</label>
-                        <input type="text" id="projectName" placeholder="e.g., Prestige Shantiniketan / Godrej Woods" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <!-- Dynamic Clerk session greeting -->
+                        <h2 id="welcome-greeting" class="text-lg text-gray-600 mb-1">Welcome, Agent!</h2>
+                        <p class="text-xs md:text-sm text-gray-500">Fill out property details to instantly blast multi-channel marketing campaigns.</p>
                     </div>
 
-                    <div>
-                        <label for="propType" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Property Type</label>
-                        <select id="propType" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="Luxury Villa">Luxury Villa</option>
-                            <option value="Apartment / Flat">Apartment / Flat</option>
-                            <option value="Penthouse">Penthouse</option>
-                            <option value="Commercial Office Space">Commercial Space</option>
-                            <option value="Gated Plot">Gated Plot</option>
-                        </select>
-                    </div>
+                    <div class="space-y-4">
+                        <!-- Project/Society Name Field -->
+                        <div>
+                            <label for="projectName" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Project / Society Name</label>
+                            <input type="text" id="projectName" placeholder="e.g., Prestige Shantiniketan / Godrej Woods" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Field 1: Property Type Selection -->
                         <div>
-                            <label for="city" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">City</label>
-                            <input type="text" id="city" placeholder="e.g., Bengaluru" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label for="locality" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Locality / Area</label>
-                            <input type="text" id="locality" placeholder="e.g., Indiranagar" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label for="price" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Price / Investment</label>
-                            <input type="text" id="price" placeholder="e.g., ₹2.5 Crores" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label for="bhk" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">BHK Configuration</label>
-                            <select id="bhk" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="1 BHK">1 BHK</option>
-                                <option value="2 BHK">2 BHK</option>
-                                <option value="3 BHK">3 BHK</option>
-                                <option value="4+ BHK">4+ BHK</option>
-                                <option value="N/A">Not Applicable</option>
+                            <label for="propType" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Property Type</label>
+                            <select id="propType" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="Luxury Villa">Luxury Villa</option>
+                                <option value="Apartment / Flat">Apartment / Flat</option>
+                                <option value="Penthouse">Penthouse</option>
+                                <option value="Commercial Office Space">Commercial Space</option>
+                                <option value="Gated Plot">Gated Plot</option>
                             </select>
                         </div>
-                    </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Core Amenities</label>
-                        <div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-lg border border-gray-200 text-xs md:text-sm">
-                            <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="amenities" value="Swimming Pool" class="rounded text-blue-600"> <span>🏊 Pool</span></label>
-                            <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="amenities" value="Modern Gym" class="rounded text-blue-600"> <span>🏋️ Gym</span></label>
-                            <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="amenities" value="Clubhouse" class="rounded text-blue-600"> <span>🏡 Clubhouse</span></label>
-                            <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="amenities" value="24/7 Security" class="rounded text-blue-600"> <span>🛡️ Security</span></label>
+                        <!-- Fields 2 & 3: Localized Location Matrix -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="city" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">City</label>
+                                <input type="text" id="city" placeholder="e.g., Bengaluru" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="locality" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Locality / Area</label>
+                                <input type="text" id="locality" placeholder="e.g., Indiranagar" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
                         </div>
+
+                        <!-- Layout Matrix for Price and Configuration Layouts -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="price" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Price / Investment</label>
+                                <input type="text" id="price" placeholder="e.g., ₹2.5 Crores" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="bhk" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">BHK Configuration</label>
+                                <select id="bhk" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="1 BHK">1 BHK</option>
+                                    <option value="2 BHK">2 BHK</option>
+                                    <option value="3 BHK">3 BHK</option>
+                                    <option value="4+ BHK">4+ BHK</option>
+                                    <option value="N/A">Not Applicable</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Amenities Checkbox Collection Grid -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Core Amenities</label>
+                            <div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-lg border border-gray-200 text-xs md:text-sm">
+                                <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="amenities" value="Swimming Pool" class="rounded text-blue-600"> <span>🏊 Pool</span></label>
+                                <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="amenities" value="Modern Gym" class="rounded text-blue-600"> <span>🏋️ Gym</span></label>
+                                <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="amenities" value="Clubhouse" class="rounded text-blue-600"> <span>🏡 Clubhouse</span></label>
+                                <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="amenities" value="24/7 Security" class="rounded text-blue-600"> <span>🛡️ Security</span></label>
+                            </div>
+                        </div>
+
+                        <!-- Field 5: Key Amenities Descriptions -->
+                        <div>
+                            <label_ for="features" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Key Features / Description</label_>
+                            <textarea id="features" rows="3" placeholder="e.g., Private plunge pool, ultra-modern modular kitchen, east-facing vaastu compliant" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+
+                        <!-- Field 6: Marketing Persona/Tone Selection Dropdown -->
+                        <div>
+                            <label for="tone" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Marketing Tone</label>
+                            <select id="tone" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="Premium / High-End Luxury">Premium / High-End Luxury</option>
+                                <option value="Urgent Deal / High ROI Scarcity">Urgent Deal / High ROI Scarcity</option>
+                                <option value="Family-Centric Emotional Storytelling">Family-Centric Emotional Storytelling</option>
+                            </select>
+                        </div>
+
+                        <!-- Execution Action Button with Integrated UI Loading State -->
+                        <button id="generateBtn" onclick="triggerCampaignGeneration()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition-colors flex items-center justify-center space-x-2">
+                            <span>✨ Generate Blitz Campaign</span>
+                        </button>
                     </div>
+                </section>
 
-                    <div>
-                        <label for="features" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Key Features / Description</label>
-                        <textarea id="features" rows="3" placeholder="e.g., Private plunge pool, ultra-modern modular kitchen, east-facing vaastu compliant" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                <!-- ZERO-COST FEATURE: Live Local Campaign History Panel -->
+                <section class="bg-white p-5 rounded-2xl shadow-md border border-gray-100 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500">🕒 Recent Blitz History</h3>
+                        <button onclick="clearAllCampaignHistory()" class="text-xs text-red-500 hover:underline">Clear All</button>
                     </div>
-
-                    <div>
-                        <label for="tone" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Marketing Tone</label>
-                        <select id="tone" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="Premium / High-End Luxury">Premium / High-End Luxury</option>
-                            <option value="Urgent Deal / High ROI Scarcity">Urgent Deal / High ROI Scarcity</option>
-                            <option value="Family-Centric Emotional Storytelling">Family-Centric Emotional Storytelling</option>
-                        </select>
+                    <div id="history-list" class="space-y-2 max-h-[180px] overflow-y-auto pr-1 text-xs text-gray-500">
+                        <!-- History list items load dynamically here -->
+                        <p class="text-gray-400 italic">No past campaigns found in this browser sandbox yet.</p>
                     </div>
+                </section>
+            </div>
 
-                    <button id="generateBtn" onclick="triggerCampaignGeneration()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition-colors flex items-center justify-center space-x-2">
-                        <span>✨ Generate Blitz Campaign</span>
-                    </button>
-                </div>
-            </section>
-
+            <!-- Right Panel: Multi-Channel Output Interface (Takes 7 columns on desktop) -->
             <section class="lg:col-span-7 bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden flex flex-col min-h-[450px] md:min-h-[500px]">
                 
+                <!-- Navigation Tabs Panel -->
                 <div class="flex border-b border-gray-100 bg-gray-50 overflow-x-auto">
                     <button onclick="switchTab('listingTab', this)" class="tab-btn flex-1 min-w-[100px] py-4 px-2 text-center text-xs md:text-sm font-semibold border-b-2 border-blue-600 text-blue-600 bg-white focus:outline-none">📋 Listing Ad</button>
                     <button onclick="switchTab('videoTab', this)" class="tab-btn flex-1 min-w-[100px] py-4 px-2 text-center text-xs md:text-sm font-semibold text-gray-500 hover:text-gray-700 focus:outline-none">🎬 Video Script</button>
                     <button onclick="switchTab('whatsappTab', this)" class="tab-btn flex-1 min-w-[100px] py-4 px-2 text-center text-xs md:text-sm font-semibold text-gray-500 hover:text-gray-700 focus:outline-none">💬 WhatsApp Blast</button>
                 </div>
 
+                <!-- Top Action Panel with Instant One-Click Copy Tool -->
                 <div class="bg-gray-50 px-6 py-2 border-b border-gray-100 flex justify-end">
                     <button onclick="copyCurrentTabContent()" class="bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center space-x-1 shadow-sm">
                         <span>📋</span> <span id="copyBtnText">Copy Output</span>
                     </button>
                 </div>
 
+                <!-- Dynamic Output Screen Displays -->
                 <div class="p-6 flex-1 bg-white overflow-y-auto relative">
+                    <!-- Visual Content Skeleton Overlay Screen -->
                     <div id="loadingOverlay" class="absolute inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center space-y-3 hidden z-10">
                         <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
                         <p class="text-sm font-medium text-gray-600 animate-pulse">Brewing high-converting copy layouts...</p>
                     </div>
 
+                    <!-- Output Panels -->
                     <div id="listingTab" class="output-content whitespace-pre-wrap text-sm md:text-base text-gray-700 leading-relaxed">Your generated AI marketing copy will appear here instantly...</div>
                     <div id="videoTab" class="output-content whitespace-pre-wrap text-sm md:text-base text-gray-700 leading-relaxed hidden">Select or generate content to see your Instagram/TikTok script...</div>
                     <div id="whatsappTab" class="output-content whitespace-pre-wrap text-sm md:text-base text-gray-700 leading-relaxed hidden">Broadcast-ready WhatsApp group content layout frames load here...</div>
@@ -138,8 +175,10 @@
         </main>
     </div>
 
+    <!-- UI/UX Event Handlers & Security Management Integration Scripts -->
     <script>
         let currentActiveTabId = "listingTab";
+        let localCampaignsCache = [];
 
         function switchTab(tabId, element) {
             currentActiveTabId = tabId;
@@ -151,18 +190,16 @@
                 btn.classList.add('text-gray-500');
             });
             
-            element.classList.add('border-b-2', 'border-blue-600', 'text-blue-600', 'bg-white');
-            element.classList.remove('text-gray-500');
-            
-            // Reset copy button status text
+            if(element) {
+                element.classList.add('border-b-2', 'border-blue-600', 'text-blue-600', 'bg-white');
+                element.classList.remove('text-gray-500');
+            }
             document.getElementById('copyBtnText').innerText = "Copy Output";
         }
 
-        // CRITICAL FIX 3: Global One-Click Clipboard Copy Handler Function
         async function copyCurrentTabContent() {
             const textToCopy = document.getElementById(currentActiveTabId).innerText;
             const copyBtnText = document.getElementById('copyBtnText');
-            
             try {
                 await navigator.clipboard.writeText(textToCopy);
                 copyBtnText.innerText = "Copied! ✓";
@@ -172,19 +209,74 @@
             }
         }
 
+        // Zero-Cost Local History Engines
+        function loadCampaignsFromLocalStorage() {
+            const data = localStorage.getItem('propblitz_history');
+            localCampaignsCache = data ? JSON.parse(data) : [];
+            renderHistoryUI();
+        }
+
+        function saveCampaignToLocalStorage(projectName, campaignData) {
+            const newRecord = {
+                id: Date.now().toString(),
+                project_name: projectName,
+                timestamp: new Date().toLocaleDateString(),
+                ...campaignData
+            };
+            localCampaignsCache.unshift(newRecord); // Add to top
+            localStorage.setItem('propblitz_history', JSON.stringify(localCampaignsCache));
+            renderHistoryUI();
+        }
+
+        function renderHistoryUI() {
+            const container = document.getElementById('history-list');
+            if (localCampaignsCache.length === 0) {
+                container.innerHTML = `<p class="text-gray-400 italic">No past campaigns found in this browser sandbox yet.</p>`;
+                return;
+            }
+            container.innerHTML = localCampaignsCache.map(camp => `
+                <div onclick="selectHistoricalCampaign('${camp.id}')" class="p-2.5 bg-gray-50 hover:bg-blue-50 border border-gray-200 rounded-lg cursor-pointer transition-colors flex justify-between items-center group">
+                    <div class="truncate pr-2">
+                        <p class="font-semibold text-gray-700 truncate">⚡ ${camp.project_name}</p>
+                        <p class="text-[10px] text-gray-400">${camp.timestamp}</p>
+                    </div>
+                    <span class="text-blue-500 opacity-0 group-hover:opacity-100 font-bold transition-opacity text-xs">Load →</span>
+                </div>
+            `).join('');
+        }
+
+        function selectHistoricalCampaign(id) {
+            const campaign = localCampaignsCache.find(c => c.id === id);
+            if (campaign) {
+                document.getElementById('listingTab').innerText = campaign.listing;
+                document.getElementById('videoTab').innerText = campaign.video;
+                document.getElementById('whatsappTab').innerText = campaign.whatsapp;
+                switchTab('listingTab', document.querySelectorAll('.tab-btn')[0]);
+            }
+        }
+
+        function clearAllCampaignHistory() {
+            if(confirm("Are you sure you want to delete all local history logs?")) {
+                localStorage.removeItem('propblitz_history');
+                localCampaignsCache = [];
+                renderHistoryUI();
+            }
+        }
+
         async function triggerCampaignGeneration() {
             const btn = document.getElementById('generateBtn');
             const loader = document.getElementById('loadingOverlay');
             
             btn.disabled = true;
             btn.innerHTML = `<span>⚡ Brewing Campaign...</span>`;
-            loader.classList.remove('hidden'); // CRITICAL FIX 5: Activate loading overlay
+            loader.classList.remove('hidden');
 
             const checkedAmenities = Array.from(document.querySelectorAll('input[name="amenities"]:checked'))
                 .map(checkbox => checkbox.value);
 
+            const pName = document.getElementById('projectName').value || "this stunning property";
             const payloadData = {
-                project_name: document.getElementById('projectName').value || "this stunning property",
+                project_name: pName,
                 prop_type: document.getElementById('propType').value,
                 city: document.getElementById('city').value || "Local City",
                 locality: document.getElementById('locality').value || "Prime Locality",
@@ -207,8 +299,6 @@
                 let sessionToken = "";
                 if (window.Clerk && window.Clerk.session) {
                     sessionToken = await window.Clerk.session.getToken();
-                } else if (window.Clerk && window.Clerk.client && window.Clerk.client.session) {
-                    sessionToken = await window.Clerk.client.session.getToken();
                 } else {
                     sessionToken = "local_sandbox_bypass_token";
                 }
@@ -225,98 +315,45 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    document.getElementById('listingTab').innerText = result.listing || "No listing copy returned.";
-                    document.getElementById('videoTab').innerText = result.video || "No script copy returned.";
-                    document.getElementById('whatsappTab').innerText = result.whatsapp || "No message copy returned.";
+                    document.getElementById('listingTab').innerText = result.listing;
+                    document.getElementById('videoTab').innerText = result.video;
+                    document.getElementById('whatsappTab').innerText = result.whatsapp;
+                    
+                    // SAVE ZERO-COST CAMPAIGN INTERNALLY ON FRONTEND
+                    saveCampaignToLocalStorage(pName, result);
                 } else {
-                    const errorPayload = result && result.detail ? result.detail : result;
-                    const errorDetails = JSON.stringify(errorPayload, null, 2);
-                    alert(`⚠️ Backend validation error:\n${errorDetails}`);
+                    alert(`⚠️ Backend validation error: ${JSON.stringify(result)}`);
                 }
             } catch (err) {
                 alert(`🛑 Connection connection pipeline failure: ${err.message}`);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<span>✨ Generate Blitz Campaign</span>`;
-                loader.classList.add('hidden'); // CRITICAL FIX 5: Remove loading overlay
+                loader.classList.add('hidden');
             }
         }
 
-       // CRITICAL RUNTIME RECOVERY: Bulletproof Clerk Loading Handler
-       // PURE VANILLA FAIL-SAFE RESILIENCY LIFECYCLE FOR CLERK ENGINE
-       window.addEventListener('load', async function () {
+        window.addEventListener('load', async function () {
             const splash = document.getElementById('app-loading-screen');
-            const container = document.getElementById('app-container');
-            let isClerkBypassed = false;
-            
-            function clearSplashLayout() {
-                if (splash) {
-                    splash.style.opacity = '0';
-                    setTimeout(() => splash.remove(), 300);
-                }
-            }
-
-            function activateFallbackBypassMode(reason) {
-                if (isClerkBypassed) return;
-                isClerkBypassed = true;
-                console.warn(`⚠️ PropBlitz-AI Safety Layer: ${reason}. Activating sandbox dashboard.`);
-                
-                // Forcibly reveal layout fields instantly to the agent
-                container.style.display = 'block';
-                document.getElementById('welcome-greeting').innerHTML = `Welcome, <span class="font-bold text-blue-600">Agent</span>! 👋`;
-                clearSplashLayout();
-            }
-
-            // ⏱️ FORCE TIMEOUT PROTECTION: If network or Ad-Blockers block Clerk for 3s, strip the screen
-            const scriptTimeoutGuard = setTimeout(() => {
-                activateFallbackBypassMode("Clerk script download took too long or was blocked by an Ad-Blocker/Shield");
-            }, 3000);
-
             try {
-                // Wait iteratively if the script tag hasn't fully appended to global window context
-                if (!window.Clerk) {
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                }
+                await Clerk.load();
+                if (splash) { splash.style.opacity = '0'; setTimeout(() => splash.remove(), 300); }
 
-                if (window.Clerk) {
-                    await Clerk.load();
-                    clearTimeout(scriptTimeoutGuard); // Clear timeout since Clerk successfully loaded
-
-                    if (isClerkBypassed) return; // Prevent double execution if triggered late
-
-                    if (Clerk.user) {
-                        container.style.display = 'block';
-                        const firstName = Clerk.user.firstName || "Agent";
-                        document.getElementById('welcome-greeting').innerHTML = `Welcome, <span class="font-bold text-blue-600">${firstName}</span>! 👋`;
-                        
-                        const userButtonDiv = document.getElementById('user-button');
-                        if (userButtonDiv) {
-                            Clerk.mountUserButton(userButtonDiv);
-                        }
-                    } else {
-                        // Open sign-in modal cleanly matching PropBlitz-AI UI
-                        Clerk.openSignIn({
-                            appearance: {
-                                variables: {
-                                    colorPrimary: '#2563eb',
-                                    colorBackground: '#ffffff',
-                                    colorText: '#1f2937',
-                                    borderRadius: '0.75rem'
-                                }
-                            }
-                        });
-                    }
+                if (Clerk.user) {
+                    document.getElementById('app-container').style.display = 'block';
+                    const firstName = Clerk.user.firstName || "Agent";
+                    document.getElementById('welcome-greeting').innerHTML = `Welcome, <span class="font-bold text-blue-600">${firstName}</span>! 👋`;
+                    Clerk.mountUserButton(document.getElementById('user-button'));
+                    
+                    // Fire local drawer database load
+                    loadCampaignsFromLocalStorage();
                 } else {
-                    throw new Error("Clerk global namespace undefined.");
+                    Clerk.openSignIn({ appearance: { variables: { colorPrimary: '#2563eb' } } });
                 }
             } catch (error) {
-                clearTimeout(scriptTimeoutGuard);
-                activateFallbackBypassMode(`Runtime initialization error: ${error.message}`);
-            } finally {
-                // Ensure splash screen always clears out if execution reaches here safely
-                if (window.Clerk && Clerk.user) {
-                    clearSplashLayout();
-                }
+                document.getElementById('app-container').style.display = 'block';
+                splash?.remove();
+                loadCampaignsFromLocalStorage();
             }
         });
     </script>
