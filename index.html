@@ -243,31 +243,49 @@
         }
 
        // CRITICAL RUNTIME RECOVERY: Bulletproof Clerk Loading Handler
+       // PURE VANILLA FAIL-SAFE RESILIENCY LIFECYCLE FOR CLERK ENGINE
        window.addEventListener('load', async function () {
             const splash = document.getElementById('app-loading-screen');
+            const container = document.getElementById('app-container');
+            let isClerkBypassed = false;
             
-            function removeSplashScreen() {
+            function clearSplashLayout() {
                 if (splash) {
                     splash.style.opacity = '0';
                     setTimeout(() => splash.remove(), 300);
                 }
             }
 
+            function activateFallbackBypassMode(reason) {
+                if (isClerkBypassed) return;
+                isClerkBypassed = true;
+                console.warn(`⚠️ PropBlitz-AI Safety Layer: ${reason}. Activating sandbox dashboard.`);
+                
+                // Forcibly reveal layout fields instantly to the agent
+                container.style.display = 'block';
+                document.getElementById('welcome-greeting').innerHTML = `Welcome, <span class="font-bold text-blue-600">Agent</span>! 👋`;
+                clearSplashLayout();
+            }
+
+            // ⏱️ FORCE TIMEOUT PROTECTION: If network or Ad-Blockers block Clerk for 3s, strip the screen
+            const scriptTimeoutGuard = setTimeout(() => {
+                activateFallbackBypassMode("Clerk script download took too long or was blocked by an Ad-Blocker/Shield");
+            }, 3000);
+
             try {
-                // Check if Clerk SDK actually injected into the global window space
+                // Wait iteratively if the script tag hasn't fully appended to global window context
                 if (!window.Clerk) {
-                    console.warn("Clerk object not found immediately. Retrying library hook...");
-                    // Small delay to let async script load if network lagged
-                    await new Promise(resolve => setTimeout(resolve, 800));
+                    await new Promise(resolve => setTimeout(resolve, 500));
                 }
 
                 if (window.Clerk) {
                     await Clerk.load();
+                    clearTimeout(scriptTimeoutGuard); // Clear timeout since Clerk successfully loaded
+
+                    if (isClerkBypassed) return; // Prevent double execution if triggered late
 
                     if (Clerk.user) {
-                        // Show application dashboard seamlessly
-                        document.getElementById('app-container').style.display = 'block';
-                        
+                        container.style.display = 'block';
                         const firstName = Clerk.user.firstName || "Agent";
                         document.getElementById('welcome-greeting').innerHTML = `Welcome, <span class="font-bold text-blue-600">${firstName}</span>! 👋`;
                         
@@ -276,7 +294,7 @@
                             Clerk.mountUserButton(userButtonDiv);
                         }
                     } else {
-                        // Open sign-in screen beautifully matching PropBlitz-AI styling
+                        // Open sign-in modal cleanly matching PropBlitz-AI UI
                         Clerk.openSignIn({
                             appearance: {
                                 variables: {
@@ -289,16 +307,16 @@
                         });
                     }
                 } else {
-                    throw new Error("Clerk script failed to download or initialize correctly.");
+                    throw new Error("Clerk global namespace undefined.");
                 }
             } catch (error) {
-                console.error("Clerk setup runtime execution failure:", error);
-                // Fail-safe: Bypass authentication UI block if Clerk fails to load entirely
-                // This ensures your users can still see the page layout if Clerk is down
-                document.getElementById('app-container').style.display = 'block';
+                clearTimeout(scriptTimeoutGuard);
+                activateFallbackBypassMode(`Runtime initialization error: ${error.message}`);
             } finally {
-                // ALWAYS remove the splash screen no matter what happens to prevent permanent freezing
-                removeSplashScreen();
+                // Ensure splash screen always clears out if execution reaches here safely
+                if (window.Clerk && Clerk.user) {
+                    clearSplashLayout();
+                }
             }
         });
     </script>
