@@ -1,6 +1,6 @@
 fastapi
-uvicorn
+uvicorn[standard]
+pydantic
+sqlalchemy
 groq
 requests
-python-dotenv
-PyJWT
