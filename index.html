@@ -4,60 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PropBlitz-AI — Unified Agent Workspace</title>
-    <!-- Tailwind CSS Engine matching your specifications -->
+    <!-- Tailwind CSS Engine matching your working layout rules -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <!-- Clerk Authentication SDK Browser Script -->
+    <!-- Clerk Authentication SDK Browser Script Loaded Quietly -->
     <script async defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_bW9kZXJuLW11bGV0LTY4LmNsZXJrLmFjY291bnRzLmRldiQ" src="https://modern-mulet-68.clerk.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js" type="text/javascript"></script>
 </head>
 <body class="bg-gray-50 min-h-screen text-gray-800 font-sans antialiased">
 
-    <!-- Active Loading Screen Overlay Mask -->
-    <div id="app-loading-screen" class="fixed inset-0 bg-slate-900 flex flex-col items-center justify-center z-50 transition-opacity duration-300">
-        <div class="flex items-center space-x-3 mb-4 animate-bounce">
-            <span class="text-4xl">⚡</span>
-            <h1 class="text-2xl font-bold tracking-tight text-white">PropBlitz-AI</h1>
-        </div>
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-2"></div>
-        <p class="text-xs font-semibold text-slate-400">Loading secure agent workspace...</p>
-    </div>
-
-    <!-- Application Dashboard Canvas Container -->
-    <div id="app-container" style="display: none;" class="max-w-7xl mx-auto px-4 py-4 md:py-6">
+    <!-- The main application container is ALWAYS visible by default to prevent stuck screens -->
+    <div id="app-container" class="max-w-7xl mx-auto px-4 py-4 md:py-6">
+        
         <header class="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
             <div class="flex items-center space-x-2">
                 <span class="text-2xl md:text-3xl">⚡</span>
                 <h1 class="text-lg md:text-xl font-bold tracking-tight text-blue-600">PropBlitz-AI Dashboard</h1>
             </div>
-            <!-- Dynamic User Button Target Element Box -->
-            <div id="user-button" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"></div>
+            <!-- Dynamic Authentication Button Anchor Frame -->
+            <div id="auth-frame" class="flex items-center space-x-2">
+                <button id="clerk-auth-btn" onclick="openAuthSystem()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 rounded-xl transition-all">Sign In / Register</button>
+                <div id="user-button"></div>
+            </div>
         </header>
 
-        <!-- Main Workspace Components Layout Split Grid -->
+        <!-- Main Workspace Components Split Grid Layout -->
         <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
             
             <!-- Side Panel Form Controls -->
             <div class="lg:col-span-5 space-y-6">
-                <section class="bg-white p-5 md:p-6 rounded-2xl shadow-md border border-gray-100 space-y-5 relative">
-                    
-                    <!-- Secure Multi-Tenant Guard Gate Screen Overlay Card Component -->
-                    <div id="auth-lock-overlay" class="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-center rounded-2xl select-none" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important; z-index: 40 !important;">
-                        <div class="relative mb-6 flex items-center justify-center">
-                            <div class="absolute inset-0 rounded-full bg-blue-500 opacity-40 blur-xl animate-pulse w-20 h-20"></div>
-                            <div class="relative bg-gradient-to-br from-blue-500 to-indigo-600 text-white w-14 h-16 rounded-2xl flex items-center justify-center shadow-lg border border-blue-400">
-                                <span class="text-3xl">⚡</span>
-                            </div>
-                        </div>
-                        <h3 class="text-xl font-black text-white tracking-tight mb-2">Unlock PropBlitz-AI</h3>
-                        <p class="text-xs text-slate-300 max-w-xs px-4 mb-6 leading-relaxed font-medium">Authentication required. Sign in or create an identity mapping to enter this server workspace instance.</p>
-                        
-                        <!-- 🌟 NATIVE MODAL TRIGGERS - IMMUNE TO POP-UP BLOCKERS AND 404 URL ROUTE FAILURES -->
-                        <div class="w-full max-w-[240px] flex flex-col space-y-3">
-                            <button onclick="launchClerkRegisterPipeline()" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-3.5 px-4 rounded-xl shadow-md transition-all">✨ Create Workspace Account</button>
-                            <button onclick="launchClerkLoginPipeline()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-medium py-2.5 px-4 rounded-xl transition-all">🔑 Agent Sign In</button>
-                        </div>
-                    </div>
-
-                    <!-- Sidebar Input Form Elements Matrix -->
+                <section class="bg-white p-5 md:p-6 rounded-2xl shadow-md border border-gray-100 space-y-5">
                     <div>
                         <h2 id="welcome-greeting" class="text-lg text-gray-600 mb-1">Welcome, Agent!</h2>
                         <p class="text-xs md:text-sm text-gray-500">Fill out property details to instantly blast multi-channel marketing campaigns.</p>
@@ -125,7 +99,7 @@
                     </div>
                 </section>
 
-                <!-- Audit Log History Panel Drawer -->
+                <!-- Historic Retrieval Pipeline View -->
                 <section class="bg-white p-5 rounded-2xl shadow-md border border-gray-100 space-y-3">
                     <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500">🕒 Historical Production Ledger</h3>
                     <div id="history-list" class="space-y-2 max-h-[180px] overflow-y-auto text-xs text-gray-500">
@@ -145,20 +119,20 @@
                         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
                         <p class="text-xs font-medium text-gray-500">Brewing AI marketing layouts...</p>
                     </div>
-                    <div id="listingTab" class="output-content text-sm text-gray-700 leading-relaxed whitespace-pre-line">Awaiting generation pipeline requests...</div>
-                    <div id="whatsappTab" class="output-content text-sm text-gray-700 leading-relaxed whitespace-pre-line hidden">Awaiting group broadcast stream mappings...</div>
+                    <div id="listingTab" class="output-content text-sm text-gray-700 leading-relaxed whitespace-pre-line">Your generated AI marketing copy will appear here instantly...</div>
+                    <div id="whatsappTab" class="output-content text-sm text-gray-700 leading-relaxed whitespace-pre-line hidden">Broadcast-ready WhatsApp group content layout frames load here...</div>
                 </div>
             </section>
         </main>
     </div>
 
     <script>
-        // 🌟 CRITICAL: POINT THIS DOMAIN EXPLICITLY TO YOUR PROPEBLITZ FASTAPI SERVER CONTAINER INSTANCE
+        // CHANGE THIS EXACTLY TO YOUR BACKEND RENDER SERVER DOMAIN ENVIRONMENT
         const API_BASE = "https://contentspark-saas.onrender.com"; 
         let currentTabId = "listingTab";
 
         function renderMarkdownToHTML(text) {
-            if (!text) return "Generation failed. Try re-prompting.";
+            if (!text) return "";
             return text
                 .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
                 .replace(/^###\s+(.*)$/gmd, '<h3 class="text-base font-black text-blue-600 mt-3 mb-1.5">$1</h3>')
@@ -174,17 +148,18 @@
             btnElement.classList.add('border-b-2', 'border-blue-600', 'text-blue-600', 'bg-white');
         }
 
-        function launchClerkRegisterPipeline() {
-            if (window.Clerk) Clerk.openSignUp({ appearance: { variables: { colorPrimary: '#2563eb' } } });
-        }
-
-        function launchClerkLoginPipeline() {
-            if (window.Clerk) Clerk.openSignIn({ appearance: { variables: { colorPrimary: '#2563eb' } } });
+        function openAuthSystem() {
+            if (window.Clerk) {
+                Clerk.openSignUp({ appearance: { variables: { colorPrimary: '#2563eb' } } });
+            }
         }
 
         async function syncRelationalHistoryRecords() {
             try {
-                const token = window.Clerk && window.Clerk.session ? await window.Clerk.session.getToken() : "local_sandbox_bypass_token";
+                let token = "local_sandbox_bypass_token";
+                if (window.Clerk && window.Clerk.session) {
+                    token = await window.Clerk.session.getToken();
+                }
                 const res = await fetch(`${API_BASE}/api/get-history`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
@@ -195,7 +170,7 @@
                     return;
                 }
                 container.innerHTML = arr.map(item => `
-                    <div onclick="injectHistoricalRecord('${escape(JSON.dumps(item))}')" class="p-2 bg-gray-50 hover:bg-blue-50 border border-gray-200 rounded-lg cursor-pointer transition-all truncate font-semibold text-gray-700">
+                    <div class="p-2 bg-gray-50 border border-gray-200 rounded-lg truncate font-semibold text-gray-700">
                         ⚡ ${item.project_name} <span class="text-[9px] font-normal text-gray-400 ml-2">${item.date}</span>
                     </div>
                 `).join('');
@@ -204,7 +179,7 @@
 
         async function triggerCampaignGeneration() {
             const topicField = document.getElementById('features').value.trim();
-            if(!topicField) return alert("Please specify core property descriptions or features first!");
+            if(!topicField) return alert("Please specify property features first!");
 
             const btn = document.getElementById('generateBtn');
             const loader = document.getElementById('loadingOverlay');
@@ -215,7 +190,7 @@
                 project_name: document.getElementById('projectName').value || "Premium Project",
                 prop_type: document.getElementById('propType').value,
                 city: document.getElementById('city').value || "Local Market",
-                locality: document.getElementById('locality').value || "Prime Location Matrix",
+                locality: document.getElementById('locality').value || "Prime Location",
                 price: document.getElementById('price').value || "Price On Request",
                 bhk: document.getElementById('bhk').value,
                 amenities: checkedAmenities,
@@ -224,7 +199,10 @@
             };
 
             try {
-                const token = window.Clerk && window.Clerk.session ? await window.Clerk.session.getToken() : "local_sandbox_bypass_token";
+                let token = "local_sandbox_bypass_token";
+                if (window.Clerk && window.Clerk.session) {
+                    token = await window.Clerk.session.getToken();
+                }
                 const response = await fetch(`${API_BASE}/api/generate-campaign`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -236,7 +214,7 @@
                     document.getElementById('whatsappTab').innerHTML = renderMarkdownToHTML(resData.whatsapp);
                     await syncRelationalHistoryRecords();
                 } else {
-                    alert(`Server transmission error: ${resData.detail}`);
+                    alert(`Error: ${resData.detail}`);
                 }
             } catch {
                 alert("Network communication timeout error.");
@@ -246,30 +224,19 @@
         }
 
         window.addEventListener('load', async function () {
-            const splash = document.getElementById('app-loading-screen');
-            const lockOverlay = document.getElementById('auth-lock-overlay');
-            
             try {
                 if (window.Clerk) {
                     await Clerk.load();
                     if (Clerk.user) {
-                        if (lockOverlay) lockOverlay.remove();
-                        if (splash) splash.remove();
-                        document.getElementById('app-container').style.display = 'block';
-                        
+                        document.getElementById('clerk-auth-btn').style.display = 'none';
                         const firstName = Clerk.user.firstName || "Agent";
                         document.getElementById('welcome-greeting').innerHTML = `Welcome, <span class="font-bold text-blue-600">${firstName}</span>! 👋`;
                         Clerk.mountUserButton(document.getElementById('user-button'));
-                        await syncRelationalHistoryRecords();
-                    } else {
-                        if (splash) splash.remove();
-                        document.getElementById('app-container').style.display = 'block';
                     }
+                    await syncRelationalHistoryRecords();
                 }
-            } catch {
-                if (splash) splash.remove();
-                if (lockOverlay) lockOverlay.remove();
-                document.getElementById('app-container').style.display = 'block';
+            } catch (e) {
+                console.error("Clerk tracking skipped", e);
             }
         });
     </script>
